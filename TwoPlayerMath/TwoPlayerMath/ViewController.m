@@ -28,16 +28,26 @@
     // Do any additional setup after loading the view, typically from a nib.
         self.answerTextField.delegate = self;
     
+    // Set up the game
     [self setupGame];
     
 }
 
+
 -(void)setupGame {
+    
+    // Initialize a controller. This will give us 2 players with full lives
     self.gameController = [[GameController alloc] init];
     
+    // Get ourselves a new question
     [self getNewQuestion];
+    
+    // Update the score labels
     [self updateScores];
+    
+    // Make sure the textfield is empty with just our placeholder text
     self.answerTextField.text = @"";
+    self.answerTextField.placeholder = @"Enter your answer...";
 
 }
 
@@ -45,30 +55,37 @@
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
-//
-//-(void)textViewDidEndEditing:(UITextView *)textView {
-//    [self.answerTextField resignFirstResponder];
-//    
-//    if([textView.text integerValue] != [self.currentQuestion[@"answer"] integerValue]) {
-//        [self.gameController.currentPlayer lostLife];
-//    }
-//    [self updateScores];
-//    [self.gameController nextPlayer];
-//    self.answerTextField.text = @"";
-//    [self getNewQuestion];
-//}
 
+
+// Whenever the user presses enter on the keyboard
 -(BOOL)textFieldShouldReturn:(UITextField *)textField {
+    
+    // Get rid of the keyboard
     [self.answerTextField resignFirstResponder];
     
+    // Check if the answer is correct
     if([textField.text integerValue] != [self.currentQuestion[@"answer"] integerValue]) {
+        // If not correct deduct a life
         [self.gameController.currentPlayer lostLife];
+        
+        // Answer animation
         [self animateAnswerWithCorrect:NO];
     } else {
+        // Answer animation
         [self animateAnswerWithCorrect:YES];
     }
+    
+    // Refresh the score labels
     [self updateScores];
     
+    // CHeck to see if the player lost
+    [self checkPlayerLost];
+    
+    
+    return YES;
+}
+
+-(void)checkPlayerLost {
     if (self.gameController.currentPlayer.didLose){
         UIAlertController *alert = [UIAlertController alertControllerWithTitle:[NSString stringWithFormat:@"Player %ld lost!", self.gameController.currentPlayer.number] message:@"Thanks for playing." preferredStyle:UIAlertControllerStyleAlert];
         UIAlertAction *newGameAction = [UIAlertAction actionWithTitle:@"Play Again" style:UIAlertActionStyleCancel handler:^ (UIAlertAction *action){
@@ -81,30 +98,33 @@
     } else {
         [self.gameController nextPlayer];
         self.answerTextField.text = @"";
-
+        
     }
-    
-    
-    
-    return YES;
+
 }
 
 
 -(void)getNewQuestion {
+    
+    // Get a new question
     self.currentQuestion = [self.gameController getNewQuestion];
     
+    // Update the question label
     self.questionLabel.text = [NSString stringWithFormat:@"Player %ld what is %@ %@ %@", (long)self.gameController.currentPlayer.number, self.currentQuestion[@"input"], self.currentQuestion[@"operator"], self.currentQuestion[@"operand"]];
 }
 
+// Updates the score labels
 -(void)updateScores {
     self.player1ScoreLabel.text = [NSString stringWithFormat:@"%ld", (long)self.gameController.player1.lives];
     self.player2ScoreLabel.text = [NSString stringWithFormat:@"%ld", (long)self.gameController.player2.lives];
 }
 
+// Just gets rid of the keyboard
 -(void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
     [self.answerTextField resignFirstResponder];
 }
 
+// Sets up the animations of the question label differently depending on if it was correct or not
 -(void)animateAnswerWithCorrect:(BOOL)isCorrect {
     self.questionLabel.alpha = 0;
     if (isCorrect) {
@@ -120,6 +140,7 @@
     [self animateLabel];
 }
 
+// Animated the label
 -(void)animateLabel{
     [UIView animateWithDuration:1 animations:^{
         self.questionLabel.alpha = 1;
