@@ -14,10 +14,11 @@
 
 @property (weak, nonatomic) IBOutlet UITextField *answerTextField;
 @property (weak, nonatomic) IBOutlet UILabel *questionLabel;
-@property (nonatomic) NSDictionary *currentQuestion;
-@property (nonatomic) GameController *gameController;
 @property (weak, nonatomic) IBOutlet UILabel *player2ScoreLabel;
 @property (weak, nonatomic) IBOutlet UILabel *player1ScoreLabel;
+
+@property (nonatomic) NSDictionary *currentQuestion;
+@property (nonatomic) GameController *gameController;
 
 @end
 
@@ -140,7 +141,7 @@
     [self animateLabel];
 }
 
-// Animated the label
+// Animate the label
 -(void)animateLabel{
     [UIView animateWithDuration:1 animations:^{
         self.questionLabel.alpha = 1;
